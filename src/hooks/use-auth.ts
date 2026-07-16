@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser, onAuthChange, type User } from "./auth";
+import { getCurrentUser, onAuthChange, type User } from "@/lib/auth";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
