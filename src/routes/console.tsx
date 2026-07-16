@@ -130,10 +130,10 @@ function ConsolePage() {
                 Main
               </div>
               {([
-                { id: "overview", label: "Overview", icon: LayoutDashboard },
-                { id: "packets", label: "Packets", icon: Activity },
+                { id: "overview", label: "Overview", icon: LayoutDashboard, badge: undefined as number | undefined },
+                { id: "packets", label: "Packets", icon: Activity, badge: undefined as number | undefined },
                 { id: "alerts", label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
-                { id: "agent", label: "Agent", icon: Wifi },
+                { id: "agent", label: "Agent", icon: Wifi, badge: undefined as number | undefined },
               ] as const).map((item) => {
                 const active = tab === item.id;
                 return (
