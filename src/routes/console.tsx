@@ -281,7 +281,7 @@ function ConsolePage() {
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                   <Link to="/" className="hover:text-foreground">Dashboard</Link>
                   <ChevronRight className="mx-1 inline h-3 w-3" />
-                  <span>Overview</span>
+                  <span className="capitalize">{tab}</span>
                 </div>
                 <h1 className="mt-1 truncate text-xl font-semibold sm:text-2xl">
                   Welcome back, {user.name}
