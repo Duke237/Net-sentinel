@@ -453,9 +453,7 @@ function Kpi({
 
 function AgentInstructions() {
   const [copied, setCopied] = useState(false);
-  const cmd = `python3 agent/sniffer.py --iface eth0 --url ${
-    typeof window !== "undefined" ? window.location.origin : ""
-  }/api/public/ingest`;
+  const cmd = `python3 agent/sniffer.py --iface eth0 --url https://net-sentinel-live.onrender.com/api/public/ingest`;
   return (
     <section className="rounded-2xl border bg-card p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
