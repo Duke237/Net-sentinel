@@ -320,52 +320,81 @@ function ConsolePage() {
             </div>
           </section>
 
-          {/* Chart + Alerts */}
-          <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-            <div className="rounded-2xl border bg-card p-4">
+          {/* Overview: chart + alerts summary */}
+          {tab === "overview" && (
+            <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      Traffic trend
+                    </div>
+                    <div className="text-sm font-semibold">Packet rate · last 60s</div>
+                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    live
+                  </div>
+                </div>
+                <TrafficChart packets={cap.packets} />
+              </div>
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="mb-3">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Threat feed
+                  </div>
+                  <div className="text-sm font-semibold">Anomalies</div>
+                </div>
+                <AlertsPanel alerts={cap.alerts} />
+              </div>
+            </section>
+          )}
+
+          {/* Packet stream — shown on overview and packets tabs */}
+          {(tab === "overview" || tab === "packets") && (
+            <section className="rounded-2xl border bg-card">
+              <div className="flex items-center justify-between border-b p-4">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Live capture
+                  </div>
+                  <div className="text-sm font-semibold">Packet stream</div>
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {filter.size ? `${filter.size} filter` : "all protocols"}
+                </div>
+              </div>
+              <div className={tab === "packets" ? "h-[calc(100vh-18rem)] min-h-[520px]" : "h-[520px]"}>
+                <PacketStream packets={cap.packets} filter={filter as Set<string>} />
+              </div>
+            </section>
+          )}
+
+          {/* Alerts full panel */}
+          {tab === "alerts" && (
+            <section className="rounded-2xl border bg-card p-4">
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Traffic trend
+                    Threat feed
                   </div>
-                  <div className="text-sm font-semibold">Packet rate · last 60s</div>
+                  <div className="text-sm font-semibold">All anomalies ({cap.alerts.length})</div>
                 </div>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  live
-                </div>
-              </div>
-              <TrafficChart packets={cap.packets} />
-            </div>
-            <div className="rounded-2xl border bg-card p-4">
-              <div className="mb-3">
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Threat feed
-                </div>
-                <div className="text-sm font-semibold">Anomalies</div>
               </div>
               <AlertsPanel alerts={cap.alerts} />
-            </div>
-          </section>
+              {cap.alerts.length === 0 && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No anomalies detected yet. Heuristics scan for SYN sweeps, high-entropy DNS
+                  (tunneling / DGA candidates), and ARP conflict signals.
+                </p>
+              )}
+            </section>
+          )}
 
-          {/* Packet stream */}
-          <section className="rounded-2xl border bg-card">
-            <div className="flex items-center justify-between border-b p-4">
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Live capture
-                </div>
-                <div className="text-sm font-semibold">Packet stream</div>
-              </div>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                {filter.size ? `${filter.size} filter` : "all protocols"}
-              </div>
-            </div>
-            <div className="h-[520px]">
-              <PacketStream packets={cap.packets} filter={filter as Set<string>} />
-            </div>
-          </section>
+          {/* Agent tab — always show instructions */}
+          {tab === "agent" && <AgentInstructions />}
 
-          {cap.mode === "real" && cap.status !== "capturing" && (
+          {/* Overview: show agent hint when waiting */}
+          {tab === "overview" && cap.mode === "real" && cap.status !== "capturing" && (
             <AgentInstructions />
           )}
         </main>
