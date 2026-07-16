@@ -129,27 +129,34 @@ function ConsolePage() {
               <div className="mb-1 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 Main
               </div>
-              {[
-                { label: "Overview", icon: LayoutDashboard, active: true },
-                { label: "Packets", icon: Activity },
-                { label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
-                { label: "Agent", icon: Wifi },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
-                    item.active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span className="flex-1 truncate">{item.label}</span>
-                  {item.badge ? (
-                    <span className="rounded-md bg-destructive/20 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </button>
-              ))}
+              {([
+                { id: "overview", label: "Overview", icon: LayoutDashboard },
+                { id: "packets", label: "Packets", icon: Activity },
+                { id: "alerts", label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
+                { id: "agent", label: "Agent", icon: Wifi },
+              ] as const).map((item) => {
+                const active = tab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
+                      active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge ? (
+                      <span className={`rounded-md px-1.5 py-0.5 font-mono text-[10px] ${active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-destructive/20 text-destructive"}`}>
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </nav>
 
             <div>
