@@ -35,6 +35,8 @@ export const Route = createFileRoute("/console")({
   component: ConsolePage,
 });
 
+type Tab = "overview" | "packets" | "alerts" | "agent";
+
 function ConsolePage() {
   const navigate = useNavigate();
   const { user, ready } = useAuth();
@@ -42,6 +44,7 @@ function ConsolePage() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filter, setFilter] = useState<Set<Protocol>>(new Set());
+  const [tab, setTab] = useState<Tab>("overview");
   const cap = useCapture();
 
   useEffect(() => {
