@@ -96,7 +96,7 @@ function ConsolePage() {
       <div className="mx-auto flex max-w-[1500px] gap-4 p-3 sm:p-4 lg:p-6">
         {/* Sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform border-r bg-card p-4 transition-transform lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:translate-x-0 lg:rounded-2xl lg:border ${
+          className={`fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 transform flex-col border-r bg-card p-4 transition-transform lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:translate-x-0 lg:rounded-2xl lg:border ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -121,94 +121,116 @@ function ConsolePage() {
             </button>
           </div>
 
-          <nav className="mt-6 space-y-1 text-sm">
-            <div className="mb-1 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Main
-            </div>
-            {[
-              { label: "Overview", icon: LayoutDashboard, active: true },
-              { label: "Packets", icon: Activity },
-              { label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
-              { label: "Agent", icon: Wifi },
-            ].map((item) => (
-              <button
-                key={item.label}
-                className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
-                  item.active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="flex-1 truncate">{item.label}</span>
-                {item.badge ? (
-                  <span className="rounded-md bg-destructive/20 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </nav>
+          <div className="mt-4 min-h-0 flex-1 space-y-6 overflow-y-auto pr-1">
+            <nav className="space-y-1 text-sm">
+              <div className="mb-1 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Main
+              </div>
+              {[
+                { label: "Overview", icon: LayoutDashboard, active: true },
+                { label: "Packets", icon: Activity },
+                { label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
+                { label: "Agent", icon: Wifi },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
+                    item.active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span className="flex-1 truncate">{item.label}</span>
+                  {item.badge ? (
+                    <span className="rounded-md bg-destructive/20 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </nav>
 
-          <div className="mt-6">
-            <div className="mb-2 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Protocol filter
+            <div>
+              <div className="mb-2 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Protocol filter
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {ALL_PROTOCOLS.map((p) => {
+                  const on = filter.has(p);
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => toggleProto(p)}
+                      className={`flex items-center justify-between rounded-md border px-2 py-1 font-mono text-[11px] ${
+                        on ? "bg-primary text-primary-foreground" : "bg-background hover:bg-accent"
+                      }`}
+                    >
+                      <span className={on ? "" : PROTOCOL_COLOR[p]}>{p}</span>
+                      <span className="opacity-60">{protoCounts.get(p) || 0}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {filter.size > 0 && (
+                <button
+                  onClick={() => setFilter(new Set())}
+                  className="mt-2 w-full text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                >
+                  clear filters
+                </button>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {ALL_PROTOCOLS.map((p) => {
-                const on = filter.has(p);
-                return (
-                  <button
-                    key={p}
-                    onClick={() => toggleProto(p)}
-                    className={`flex items-center justify-between rounded-md border px-2 py-1 font-mono text-[11px] ${
-                      on ? "bg-primary text-primary-foreground" : "bg-background hover:bg-accent"
+
+            <div className="rounded-lg border-2 border-primary/40 bg-background p-3 shadow-sm">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Capture mode
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest ${
+                    cap.mode === "real"
+                      ? "bg-success/15 text-success"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      cap.mode === "real" ? "bg-success animate-pulse" : "bg-muted-foreground"
                     }`}
-                  >
-                    <span className={on ? "" : PROTOCOL_COLOR[p]}>{p}</span>
-                    <span className="opacity-60">{protoCounts.get(p) || 0}</span>
-                  </button>
-                );
-              })}
+                  />
+                  {cap.mode}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1 text-xs">
+                <button
+                  onClick={() => cap.setMode("demo")}
+                  className={`rounded px-2 py-1.5 font-semibold transition ${
+                    cap.mode === "demo"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Demo
+                </button>
+                <button
+                  onClick={() => cap.setMode("real")}
+                  className={`inline-flex items-center justify-center gap-1 rounded px-2 py-1.5 font-semibold transition ${
+                    cap.mode === "real"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Radio className="h-3 w-3" /> Real
+                </button>
+              </div>
+              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                {cap.mode === "demo"
+                  ? "Synthesized traffic for exploring the console. Switch to Real to stream live packets from the capture agent."
+                  : "Live mode active. Run the Python agent on your host — instructions appear in the main panel."}
+              </p>
             </div>
-            {filter.size > 0 && (
-              <button
-                onClick={() => setFilter(new Set())}
-                className="mt-2 w-full text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground"
-              >
-                clear filters
-              </button>
-            )}
           </div>
 
-          <div className="mt-6 rounded-lg border bg-background p-3">
-            <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Capture mode
-            </div>
-            <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1 text-xs">
-              <button
-                onClick={() => cap.setMode("demo")}
-                className={`rounded px-2 py-1 font-medium ${
-                  cap.mode === "demo" ? "bg-card shadow-sm" : "text-muted-foreground"
-                }`}
-              >
-                Demo
-              </button>
-              <button
-                onClick={() => cap.setMode("real")}
-                className={`rounded px-2 py-1 font-medium ${
-                  cap.mode === "real" ? "bg-card shadow-sm" : "text-muted-foreground"
-                }`}
-              >
-                Real
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-              {cap.mode === "demo"
-                ? "Synthesized traffic for exploring the console."
-                : "Connect the Python agent to stream live packets from your host."}
-            </p>
-          </div>
-
-          <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 rounded-xl border bg-background p-2">
+          <div className="mt-4 flex items-center gap-3 rounded-xl border bg-background p-2">
             <img
               src={user.avatarUrl}
               alt=""
