@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicStreamRouteImport } from './routes/api/public/stream'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConsoleRoute = ConsoleRouteImport.update({
   id: '/console',
   path: '/console',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -69,15 +78,23 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/console'
+    | '/sitemap.xml'
     | '/api/public/ingest'
     | '/api/public/stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/console' | '/api/public/ingest' | '/api/public/stream'
+  to:
+    | '/'
+    | '/auth'
+    | '/console'
+    | '/sitemap.xml'
+    | '/api/public/ingest'
+    | '/api/public/stream'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/console'
+    | '/sitemap.xml'
     | '/api/public/ingest'
     | '/api/public/stream'
   fileRoutesById: FileRoutesById
@@ -86,12 +103,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   ConsoleRoute: typeof ConsoleRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
   ApiPublicStreamRoute: typeof ApiPublicStreamRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/console': {
       id: '/console'
       path: '/console'
@@ -134,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   ConsoleRoute: ConsoleRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
   ApiPublicStreamRoute: ApiPublicStreamRoute,
 }
