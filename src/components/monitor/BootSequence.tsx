@@ -17,11 +17,12 @@ export function BootSequence({ onDone }: { onDone: () => void }) {
       i++;
       if (i >= seq.length) {
         clearInterval(t);
-        setTimeout(onDone, 400);
+        setTimeout(() => onDone(), 250);
       }
-    }, 220);
+    }, 120);
     return () => clearInterval(t);
-  }, [onDone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div className="terminal-panel fixed inset-0 z-50 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
