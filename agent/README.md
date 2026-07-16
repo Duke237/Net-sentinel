@@ -34,7 +34,7 @@ Point it at your deployed console's public ingest endpoint:
 ```bash
 sudo python3 agent/sniffer.py \
   --iface eth0 \
-  --url https://your-netsentinel.onrender.com/api/public/ingest
+  --url https://net-sentinel-live.onrender.com/api/public/ingest
 ```
 
 Open your console in the browser, switch to **Real** capture mode, and
@@ -42,10 +42,10 @@ packets will start flowing into the live stream within a second.
 
 ## Options
 
-| Flag       | Default                                       | Description                              |
-|------------|-----------------------------------------------|------------------------------------------|
-| `--iface`  | auto                                          | Interface to sniff (`eth0`, `wlan0`, …)  |
-| `--url`    | `http://localhost:3000/api/public/ingest`     | Console ingest endpoint                  |
+| Flag       | Default                                                          | Description                              |
+|------------|------------------------------------------------------------------|------------------------------------------|
+| `--iface`  | auto                                                             | Interface to sniff (`eth0`, `wlan0`, …)  |
+| `--url`    | `https://net-sentinel-live.onrender.com/api/public/ingest`       | Console ingest endpoint                  |
 | `--bpf`    | *(none)*                                      | BPF filter, e.g. `"tcp or udp"`          |
 | `--batch`  | `20`                                          | Events per POST batch                    |
 | `--agent`  | hostname                                      | Agent identifier shown in the console    |
