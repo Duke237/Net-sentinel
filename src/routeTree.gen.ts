@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicStreamRouteImport } from './routes/api/public/stream'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicStreamRoute = ApiPublicStreamRouteImport.update({
+  id: '/api/public/stream',
+  path: '/api/public/stream',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
@@ -26,27 +32,31 @@ const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/ingest'
+  fullPaths: '/' | '/api/public/ingest' | '/api/public/stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/ingest'
-  id: '__root__' | '/' | '/api/public/ingest'
+  to: '/' | '/api/public/ingest' | '/api/public/stream'
+  id: '__root__' | '/' | '/api/public/ingest' | '/api/public/stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
+  ApiPublicStreamRoute: typeof ApiPublicStreamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/stream': {
+      id: '/api/public/stream'
+      path: '/api/public/stream'
+      fullPath: '/api/public/stream'
+      preLoaderRoute: typeof ApiPublicStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/ingest': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
+  ApiPublicStreamRoute: ApiPublicStreamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
