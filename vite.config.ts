@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Tell Lovable's internal Nitro plugin to build for a normal Node server
+  nitro: {
+    preset: 'node-server'
+  }
 });
+
