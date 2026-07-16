@@ -10,11 +10,11 @@ Requirements:
     pip3 install scapy requests
 
 Usage (needs sudo for raw sockets, same permission Wireshark needs):
-    sudo python3 agent/sniffer.py --iface eth0 --url https://your-app.onrender.com/api/public/ingest
+    sudo python3 agent/sniffer.py --iface eth0 --url https://net-sentinel-live.onrender.com/api/public/ingest
 
 Options:
     --iface   Interface to sniff (default: auto)
-    --url     Ingest endpoint (default: http://localhost:3000/api/public/ingest)
+    --url     Ingest endpoint (default: https://net-sentinel-live.onrender.com/api/public/ingest)
     --bpf     BPF filter (default: "")   e.g. "tcp or udp"
     --batch   Batch size before POSTing (default: 20)
     --agent   Agent identifier (default: hostname)
@@ -96,7 +96,7 @@ def classify(pkt) -> tuple[str, dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--iface", default=None)
-    ap.add_argument("--url", default="http://localhost:3000/api/public/ingest")
+    ap.add_argument("--url", default="https://net-sentinel-live.onrender.com/api/public/ingest")
     ap.add_argument("--bpf", default="")
     ap.add_argument("--batch", type=int, default=20)
     ap.add_argument("--agent", default=socket.gethostname())

@@ -35,6 +35,8 @@ export const Route = createFileRoute("/console")({
   component: ConsolePage,
 });
 
+type Tab = "overview" | "packets" | "alerts" | "agent";
+
 function ConsolePage() {
   const navigate = useNavigate();
   const { user, ready } = useAuth();
@@ -42,6 +44,7 @@ function ConsolePage() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filter, setFilter] = useState<Set<Protocol>>(new Set());
+  const [tab, setTab] = useState<Tab>("overview");
   const cap = useCapture();
 
   useEffect(() => {
@@ -126,27 +129,34 @@ function ConsolePage() {
               <div className="mb-1 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 Main
               </div>
-              {[
-                { label: "Overview", icon: LayoutDashboard, active: true },
-                { label: "Packets", icon: Activity },
-                { label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
-                { label: "Agent", icon: Wifi },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
-                    item.active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span className="flex-1 truncate">{item.label}</span>
-                  {item.badge ? (
-                    <span className="rounded-md bg-destructive/20 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </button>
-              ))}
+              {([
+                { id: "overview", label: "Overview", icon: LayoutDashboard, badge: undefined as number | undefined },
+                { id: "packets", label: "Packets", icon: Activity, badge: undefined as number | undefined },
+                { id: "alerts", label: "Alerts", icon: ShieldAlert, badge: cap.alerts.length || undefined },
+                { id: "agent", label: "Agent", icon: Wifi, badge: undefined as number | undefined },
+              ] as const).map((item) => {
+                const active = tab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left ${
+                      active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge ? (
+                      <span className={`rounded-md px-1.5 py-0.5 font-mono text-[10px] ${active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-destructive/20 text-destructive"}`}>
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </nav>
 
             <div>
@@ -271,7 +281,7 @@ function ConsolePage() {
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                   <Link to="/" className="hover:text-foreground">Dashboard</Link>
                   <ChevronRight className="mx-1 inline h-3 w-3" />
-                  <span>Overview</span>
+                  <span className="capitalize">{tab}</span>
                 </div>
                 <h1 className="mt-1 truncate text-xl font-semibold sm:text-2xl">
                   Welcome back, {user.name}
@@ -310,52 +320,81 @@ function ConsolePage() {
             </div>
           </section>
 
-          {/* Chart + Alerts */}
-          <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-            <div className="rounded-2xl border bg-card p-4">
+          {/* Overview: chart + alerts summary */}
+          {tab === "overview" && (
+            <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      Traffic trend
+                    </div>
+                    <div className="text-sm font-semibold">Packet rate · last 60s</div>
+                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    live
+                  </div>
+                </div>
+                <TrafficChart packets={cap.packets} />
+              </div>
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="mb-3">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Threat feed
+                  </div>
+                  <div className="text-sm font-semibold">Anomalies</div>
+                </div>
+                <AlertsPanel alerts={cap.alerts} />
+              </div>
+            </section>
+          )}
+
+          {/* Packet stream — shown on overview and packets tabs */}
+          {(tab === "overview" || tab === "packets") && (
+            <section className="rounded-2xl border bg-card">
+              <div className="flex items-center justify-between border-b p-4">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Live capture
+                  </div>
+                  <div className="text-sm font-semibold">Packet stream</div>
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {filter.size ? `${filter.size} filter` : "all protocols"}
+                </div>
+              </div>
+              <div className={tab === "packets" ? "h-[calc(100vh-18rem)] min-h-[520px]" : "h-[520px]"}>
+                <PacketStream packets={cap.packets} filter={filter as Set<string>} />
+              </div>
+            </section>
+          )}
+
+          {/* Alerts full panel */}
+          {tab === "alerts" && (
+            <section className="rounded-2xl border bg-card p-4">
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Traffic trend
+                    Threat feed
                   </div>
-                  <div className="text-sm font-semibold">Packet rate · last 60s</div>
+                  <div className="text-sm font-semibold">All anomalies ({cap.alerts.length})</div>
                 </div>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  live
-                </div>
-              </div>
-              <TrafficChart packets={cap.packets} />
-            </div>
-            <div className="rounded-2xl border bg-card p-4">
-              <div className="mb-3">
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Threat feed
-                </div>
-                <div className="text-sm font-semibold">Anomalies</div>
               </div>
               <AlertsPanel alerts={cap.alerts} />
-            </div>
-          </section>
+              {cap.alerts.length === 0 && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No anomalies detected yet. Heuristics scan for SYN sweeps, high-entropy DNS
+                  (tunneling / DGA candidates), and ARP conflict signals.
+                </p>
+              )}
+            </section>
+          )}
 
-          {/* Packet stream */}
-          <section className="rounded-2xl border bg-card">
-            <div className="flex items-center justify-between border-b p-4">
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Live capture
-                </div>
-                <div className="text-sm font-semibold">Packet stream</div>
-              </div>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                {filter.size ? `${filter.size} filter` : "all protocols"}
-              </div>
-            </div>
-            <div className="h-[520px]">
-              <PacketStream packets={cap.packets} filter={filter as Set<string>} />
-            </div>
-          </section>
+          {/* Agent tab — always show instructions */}
+          {tab === "agent" && <AgentInstructions />}
 
-          {cap.mode === "real" && cap.status !== "capturing" && (
+          {/* Overview: show agent hint when waiting */}
+          {tab === "overview" && cap.mode === "real" && cap.status !== "capturing" && (
             <AgentInstructions />
           )}
         </main>
@@ -414,9 +453,7 @@ function Kpi({
 
 function AgentInstructions() {
   const [copied, setCopied] = useState(false);
-  const cmd = `python3 agent/sniffer.py --iface eth0 --url ${
-    typeof window !== "undefined" ? window.location.origin : ""
-  }/api/public/ingest`;
+  const cmd = `python3 agent/sniffer.py --iface eth0 --url https://net-sentinel-live.onrender.com/api/public/ingest`;
   return (
     <section className="rounded-2xl border bg-card p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-const BASE_URL = "";
+const BASE_URL = "https://net-sentinel-live.onrender.com";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
