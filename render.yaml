@@ -1,0 +1,19 @@
+# Render deployment for NetSentinel
+# Deploy as a Node web service. Nitro (bundled by TanStack Start) will emit a
+# Node server when NITRO_PRESET=node-server is set at build time.
+services:
+  - type: web
+    name: netsentinel
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node .output/server/index.mjs
+    envVars:
+      - key: NITRO_PRESET
+        value: node-server
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: PORT
+        value: 10000
+    autoDeploy: true
+    healthCheckPath: /
